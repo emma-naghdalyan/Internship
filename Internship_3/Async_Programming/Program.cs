@@ -1,48 +1,64 @@
-﻿using System;
+﻿using Microsoft.Ajax.Utilities;
+using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Async_Programming
 {
     class Program
     {
         public delegate int BinaryOp(int x, int y);
-
+        private static bool isDone = false;
         static void Main(string[] args)
         {
             Thread currentTrade = Thread.CurrentThread;
             AppDomain ad = Thread.GetDomain();
-            // Obtain the context under which the
-            // current thread is operating.
-            //Context ctx = Thread.CurrentContext;
+
+            // Context ctx = Thread.CurrentContext;
 
 
             //Console.WriteLine("***** Synch Delegate Review *****");
-            //// Print out the ID of the executing thread.
+
             //Console.WriteLine("Main() invoked on thread {0}.", Thread.CurrentThread.ManagedThreadId);
-            //// Invoke Add() in a synchronous manner.
+
             //BinaryOp b = new BinaryOp(Add);
-            //// Could also write b.Invoke(10, 10);
             //int answer = b(10, 10);
-            //// These lines will not execute until
-            //// the Add() method has completed.
             //Console.WriteLine("Doing more work in Main()!");
             //Console.WriteLine("10 + 10 is {0}.", answer);
             //Console.ReadLine();
 
 
-            Console.WriteLine("***** Async Delegate Invocation *****");
-            // Print out the ID of the executing thread.
+            /* Console.WriteLine("***** Async Delegate Invocation *****");
             Console.WriteLine("Main() invoked on thread {0}.",
             Thread.CurrentThread.ManagedThreadId);
-            // Invoke Add() on a secondary thread.
             BinaryOp b = new BinaryOp(Add);
-            IAsyncResult ar = b.BeginInvoke(10, 10, null, null);
-            // Do other work on primary thread...
+            IAsyncResult ar = b.BeginInvoke(10, 52, null, null);
             Console.WriteLine("Doing more work in Main()!");
-            // Obtain the result of the Add()
-            // method when ready.
-            int answer = b.EndInvoke(ar);
+
+            // int answer = b.EndInvoke(ar);
+
+
+            while (!ar.IsCompleted)
+            {
+                Console.WriteLine("Doing more work in Main()!");
+                Thread.Sleep(1000);
+            }
+            // Now we know the Add() method is complete.
+            int answer = b.EndInvoke(ar);            
+            
             Console.WriteLine("10 + 10 is {0}.", answer);
+            Console.ReadLine(); */
+
+
+            Console.WriteLine("***** AsyncCallbackDelegate Example *****");
+            Console.WriteLine("Main() invoked on thread {0}.",
+            Thread.CurrentThread.ManagedThreadId);
+            BinaryOp b = new BinaryOp(Add);
+            Task task = Task.Run(() => b(10, 10));
+
+            task.Wait();
+            Console.WriteLine("Working....");
+            Thread.Sleep(1000);
             Console.ReadLine();
         }
         static int Add(int x, int y)
@@ -54,6 +70,21 @@ namespace Async_Programming
             Thread.Sleep(5000);
             return x + y;
         }
-
+        //static void AddComplete(IAsyncResult iar)
+        //{
+        //    Console.WriteLine("AddComplete() invoked on thread {0}.", Thread.CurrentThread.ManagedThreadId);
+        //    Console.WriteLine("Your addition is complete");
+        //    isDone = true;
+        //}
+        //static void AddComplete(IAsyncResult iar)
+        //{
+        //    Console.WriteLine("AddComplete() invoked on thread {0}.", Thread.CurrentThread.ManagedThreadId);
+        //    Console.WriteLine("Your addition is complete");
+        //    // Now get the result.
+        //    AsyncResult ar = (AsyncResult)iar;
+        //    BinaryOp b = (BinaryOp)ar.AsyncDelegate;
+        //    Console.WriteLine("10 + 10 is {0}.", b.EndInvoke(iar));
+        //    isDone = true;
+        //}
     }
 }
