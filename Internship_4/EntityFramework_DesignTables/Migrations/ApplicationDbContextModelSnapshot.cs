@@ -27,10 +27,14 @@ namespace EntityFramework_DesignTables.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Address")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<int>("OrderHistoryId")
                         .HasColumnType("int");
@@ -48,10 +52,13 @@ namespace EntityFramework_DesignTables.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("SerialNumber")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Type")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("InventoryId");
 
@@ -81,9 +88,7 @@ namespace EntityFramework_DesignTables.Migrations
             modelBuilder.Entity("EntityFramework_DesignTables.Entities.OrderHistory", b =>
                 {
                     b.Property<int>("OrderHistoryId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
 
                     b.Property<int>("CustomerId")
                         .HasColumnType("int");
@@ -92,9 +97,6 @@ namespace EntityFramework_DesignTables.Migrations
                         .HasColumnType("float");
 
                     b.HasKey("OrderHistoryId");
-
-                    b.HasIndex("CustomerId")
-                        .IsUnique();
 
                     b.ToTable("OrderHistories");
                 });
@@ -107,19 +109,24 @@ namespace EntityFramework_DesignTables.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<DateTime>("DateSold")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
+                        .HasComputedColumnSql("GetUtcDate()");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
-                    b.Property<int?>("OrderId")
+                    b.Property<int>("OrderId")
                         .HasColumnType("int");
 
                     b.Property<int>("ProductListId")
                         .HasColumnType("int");
 
                     b.Property<string>("ProductName")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.HasKey("ProductId");
 
@@ -141,6 +148,7 @@ namespace EntityFramework_DesignTables.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("Package")
+                        .HasMaxLength(4)
                         .HasColumnType("int");
 
                     b.Property<string>("SerialNumber")
@@ -156,15 +164,15 @@ namespace EntityFramework_DesignTables.Migrations
             modelBuilder.Entity("EntityFramework_DesignTables.Entities.Sale", b =>
                 {
                     b.Property<int>("SaleId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
 
                     b.Property<int>("AmountSold")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("DateSold")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
+                        .HasComputedColumnSql("GetUtcDate()");
 
                     b.Property<double>("Price")
                         .HasColumnType("float");
@@ -173,9 +181,6 @@ namespace EntityFramework_DesignTables.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("SaleId");
-
-                    b.HasIndex("ProductId")
-                        .IsUnique();
 
                     b.ToTable("Sales");
                 });
@@ -195,7 +200,7 @@ namespace EntityFramework_DesignTables.Migrations
                 {
                     b.HasOne("EntityFramework_DesignTables.Entities.Customer", "Customer")
                         .WithOne("OrderHistory")
-                        .HasForeignKey("EntityFramework_DesignTables.Entities.OrderHistory", "CustomerId")
+                        .HasForeignKey("EntityFramework_DesignTables.Entities.OrderHistory", "OrderHistoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -206,7 +211,9 @@ namespace EntityFramework_DesignTables.Migrations
                 {
                     b.HasOne("EntityFramework_DesignTables.Entities.Order", "Order")
                         .WithMany("Products")
-                        .HasForeignKey("OrderId");
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("EntityFramework_DesignTables.Entities.ProductList", "ProductList")
                         .WithMany("Products")
@@ -234,7 +241,7 @@ namespace EntityFramework_DesignTables.Migrations
                 {
                     b.HasOne("EntityFramework_DesignTables.Entities.Product", "Product")
                         .WithOne("Sale")
-                        .HasForeignKey("EntityFramework_DesignTables.Entities.Sale", "ProductId")
+                        .HasForeignKey("EntityFramework_DesignTables.Entities.Sale", "SaleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

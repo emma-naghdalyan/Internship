@@ -14,8 +14,8 @@ namespace EntityFramework_DesignTables.Migrations
                     CustomerId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     OrderHistoryId = table.Column<int>(type: "int", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Address = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Name = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -28,8 +28,8 @@ namespace EntityFramework_DesignTables.Migrations
                 {
                     InventoryId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Type = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    SerialNumber = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Type = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    SerialNumber = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -40,8 +40,7 @@ namespace EntityFramework_DesignTables.Migrations
                 name: "OrderHistories",
                 columns: table => new
                 {
-                    OrderHistoryId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    OrderHistoryId = table.Column<int>(type: "int", nullable: false),
                     CustomerId = table.Column<int>(type: "int", nullable: false),
                     UnitSold = table.Column<double>(type: "float", nullable: false)
                 },
@@ -49,8 +48,8 @@ namespace EntityFramework_DesignTables.Migrations
                 {
                     table.PrimaryKey("PK_OrderHistories", x => x.OrderHistoryId);
                     table.ForeignKey(
-                        name: "FK_OrderHistories_Customers_CustomerId",
-                        column: x => x.CustomerId,
+                        name: "FK_OrderHistories_Customers_OrderHistoryId",
+                        column: x => x.OrderHistoryId,
                         principalTable: "Customers",
                         principalColumn: "CustomerId",
                         onDelete: ReferentialAction.Cascade);
@@ -84,7 +83,7 @@ namespace EntityFramework_DesignTables.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     InventoryId = table.Column<int>(type: "int", nullable: false),
                     SerialNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Package = table.Column<int>(type: "int", nullable: false)
+                    Package = table.Column<int>(type: "int", maxLength: 4, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -104,10 +103,10 @@ namespace EntityFramework_DesignTables.Migrations
                     ProductId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ProductListId = table.Column<int>(type: "int", nullable: false),
-                    ProductName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DateSold = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    OrderId = table.Column<int>(type: "int", nullable: true)
+                    ProductName = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    DateSold = table.Column<DateTime>(type: "datetime2", nullable: false, computedColumnSql: "GetUtcDate()"),
+                    Description = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    OrderId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -117,7 +116,7 @@ namespace EntityFramework_DesignTables.Migrations
                         column: x => x.OrderId,
                         principalTable: "Orders",
                         principalColumn: "OrderId",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Products_ProductLists_ProductListId",
                         column: x => x.ProductListId,
@@ -130,10 +129,9 @@ namespace EntityFramework_DesignTables.Migrations
                 name: "Sales",
                 columns: table => new
                 {
-                    SaleId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SaleId = table.Column<int>(type: "int", nullable: false),
                     ProductId = table.Column<int>(type: "int", nullable: false),
-                    DateSold = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DateSold = table.Column<DateTime>(type: "datetime2", nullable: false, computedColumnSql: "GetUtcDate()"),
                     Price = table.Column<double>(type: "float", nullable: false),
                     AmountSold = table.Column<int>(type: "int", nullable: false)
                 },
@@ -141,18 +139,12 @@ namespace EntityFramework_DesignTables.Migrations
                 {
                     table.PrimaryKey("PK_Sales", x => x.SaleId);
                     table.ForeignKey(
-                        name: "FK_Sales_Products_ProductId",
-                        column: x => x.ProductId,
+                        name: "FK_Sales_Products_SaleId",
+                        column: x => x.SaleId,
                         principalTable: "Products",
                         principalColumn: "ProductId",
                         onDelete: ReferentialAction.Cascade);
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_OrderHistories_CustomerId",
-                table: "OrderHistories",
-                column: "CustomerId",
-                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Orders_CustomerId",
@@ -173,12 +165,6 @@ namespace EntityFramework_DesignTables.Migrations
                 name: "IX_Products_ProductListId",
                 table: "Products",
                 column: "ProductListId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Sales_ProductId",
-                table: "Sales",
-                column: "ProductId",
-                unique: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

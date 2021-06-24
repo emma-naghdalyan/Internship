@@ -1,9 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using EntityFramework_DesignTables.FluentApiConfigs;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace EntityFramework_DesignTables.Entities
@@ -34,10 +36,8 @@ namespace EntityFramework_DesignTables.Entities
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Customer>()
-    .HasOne(c => c.OrderHistory)
-    .WithOne(i => i.Customer)
-    .HasForeignKey<OrderHistory>(b => b.CustomerId);
+            //modelBuilder.ApplyConfiguration(new CustomersFluentApiConfiguration());
+            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }
     }
 }
