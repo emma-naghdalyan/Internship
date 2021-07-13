@@ -3,6 +3,8 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace EntityFramework_DesignTables.Controllers
@@ -11,7 +13,7 @@ namespace EntityFramework_DesignTables.Controllers
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
+        private static readonly List<string> Summaries = new List<string>()
         {
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
@@ -24,16 +26,22 @@ namespace EntityFramework_DesignTables.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<WeatherForecast> Get()
+        public IEnumerable<string> Get()
         {
-            var rng = new Random();
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-            {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = rng.Next(-20, 55),
-                Summary = Summaries[rng.Next(Summaries.Length)]
-            })
-            .ToArray();
+            return Summaries.ToArray();
+        }
+
+        [HttpGet("{name}")]
+        //[Route("{name}")]
+        public string GetByName([FromRoute]string name)
+        {
+            return Summaries.FirstOrDefault(w => w == name);
+        }
+
+        [HttpDelete("{name}")]
+        public void Delete([FromRoute] string name)
+        {
+            Summaries.Remove(name);
         }
     }
 }
