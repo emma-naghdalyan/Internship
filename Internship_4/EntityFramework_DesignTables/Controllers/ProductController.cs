@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace EntityFramework_DesignTables.Controllers
 {
+    // Can not add product, but other actions work. There is an error with OrderId, I think if the reason is
+    // when I added migration there were not OrderId in the Product model
+
     [Route("api/[controller]")]
     [ApiController]
     public class ProductController : ControllerBase
@@ -16,10 +19,10 @@ namespace EntityFramework_DesignTables.Controllers
         private readonly ApplicationDbContext _dbContext;
         private readonly ProductService _productService;
 
-        public ProductController(ApplicationDbContext dbContext, ProductService productService)
+        public ProductController(ApplicationDbContext dbContext)
         {
             _dbContext = dbContext;
-            _productService = productService;
+            _productService = new ProductService(dbContext);
         }
 
         [HttpGet]
@@ -30,7 +33,7 @@ namespace EntityFramework_DesignTables.Controllers
                 var products = _productService.GetProducts();
                 return Ok(products);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return NotFound(ex.Message);
             }
@@ -53,11 +56,11 @@ namespace EntityFramework_DesignTables.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateProduct([FromBody] Product product)
         {
-            if (product==null)
+            if (product == null)
             {
                 return BadRequest();
             }
-            await _productService.CreateProductAsync(product.ProductListId);
+            await _productService.CreateProductAsync(product);
             return StatusCode(StatusCodes.Status201Created);
         }
 
@@ -65,7 +68,7 @@ namespace EntityFramework_DesignTables.Controllers
         public async Task<IActionResult> UpdateProduct([FromBody] Product product)
         {
             try
-            { 
+            {
                 await _productService.UpdateProductAsync(product);
                 return StatusCode(StatusCodes.Status201Created);
             }
@@ -76,7 +79,7 @@ namespace EntityFramework_DesignTables.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteProduct([FromRoute]int id)
+        public async Task<IActionResult> DeleteProduct([FromRoute] int id)
         {
             try
             {

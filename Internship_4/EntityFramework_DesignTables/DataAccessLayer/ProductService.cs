@@ -60,15 +60,21 @@ namespace EntityFramework_DesignTables.DataAccessLayer
             return soldedProducts;
         }
 
-        public async Task CreateProductAsync(int productListId)
+        //public async Task CreateProductAsync(int productListId)
+        //{
+        //    var product = new Product
+        //    {
+        //        ProductListId = productListId,
+        //        ProductName = "Chocolate",
+        //        DateSold = new DateTime(2021, 03, 7),
+        //        Description = "Very yummy!"
+        //    };
+        //    await _dbContext.Products.AddAsync(product);
+        //    await _dbContext.SaveChangesAsync();
+        //}
+
+        public async Task CreateProductAsync(Product product)
         {
-            var product = new Product
-            {
-                ProductListId = productListId,
-                ProductName = "Chocolate",
-                DateSold = new DateTime(2021, 03, 7),
-                Description = "Very yummy!"
-            };
             await _dbContext.Products.AddAsync(product);
             await _dbContext.SaveChangesAsync();
         }

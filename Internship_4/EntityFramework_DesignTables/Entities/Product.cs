@@ -14,6 +14,7 @@ namespace EntityFramework_DesignTables.Entities
         public DateTime DateSold { get; set; }
         public string Description { get; set; }
         public Order Order { get; set; }
+        public int OrderId { get; set; }
         public Sale Sale { get; set; }
     }
 }

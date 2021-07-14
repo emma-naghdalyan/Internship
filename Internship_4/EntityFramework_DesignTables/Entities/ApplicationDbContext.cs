@@ -12,6 +12,10 @@ namespace EntityFramework_DesignTables.Entities
 {
     public class ApplicationDbContext : DbContext
     {
+        public ApplicationDbContext (DbContextOptions<ApplicationDbContext> dbContextOptions):base(dbContextOptions)
+        {
+
+        }
         public DbSet<Product> Products { get; set; }
         public DbSet<ProductList> ProductLists { get; set; }
         public DbSet<Inventory> Inventories { get; set; }
