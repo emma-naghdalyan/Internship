@@ -9,12 +9,30 @@ using System.Threading.Tasks;
 
 namespace EntityFramework_DesignTables.DataAccessLayer
 {
-    public class CustomerService
+    public class CustomerService : ICustomerService
     {
         private readonly ApplicationDbContext _dbContext;
         public CustomerService(ApplicationDbContext dbContext)
         {
             _dbContext = dbContext;
+        }
+
+        public async Task<List<Customer>> GetCustomersAsync()
+        {
+            var query = from customer in _dbContext.Customers
+                        select customer;
+            var customers = await query.ToListAsync();
+            return customers;
+        }
+
+        public async Task<Customer> GetCustomerAsync(int id)
+        {
+            var customer = await _dbContext.Customers.FirstOrDefaultAsync(c => c.CustomerId == id);
+            if (customer == null)
+            {
+                throw new NotFoundException("The customer is not found ... ");
+            }
+            return customer;
         }
 
         public async Task<List<CustomersFromAddress>> GetCustomersFromAsync(string address)
@@ -36,37 +54,33 @@ namespace EntityFramework_DesignTables.DataAccessLayer
             return listFrom;
         }
 
-        public async Task CreateCustomerAsync(int orderHistoryId)
-        {
-            var customer = new Customer
-            {
-                OrderHistoryId = orderHistoryId,
-                Name = "Emma",
-                Address = "Yerevan"
-            };
-            await _dbContext.Customers.AddAsync(customer);
-            await _dbContext.SaveChangesAsync();
-        }
-
         public async Task UpdateCustomerAddressAsync(int customerId, string address)
         {
-            var customer = await _dbContext.Customers.FirstOrDefaultAsync(c => c.CustomerId == customerId);
-            if (customer == null)
-            {
-                throw new NotFoundException("The customer is not found ... ");
-            }
+            var customer = await GetCustomerAsync(customerId);
             customer.Address = address;
             _dbContext.Customers.Update(customer);
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task RemoveCustomerAsync(int customerId)
+        public async Task CreateAsync(Customer customer)
         {
-            var customer = await _dbContext.Customers.FirstOrDefaultAsync(c => c.CustomerId == customerId);
-            if (customer == null)
-            {
-                throw new NotFoundException("The customer is not found ... ");
-            }
+            await _dbContext.Customers.AddAsync(customer);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task UpdateAsync(Customer customer)
+        {
+            var customerIn = await GetCustomerAsync(customer.CustomerId);
+            customerIn.OrderHistoryId = customer.OrderHistoryId;
+            customerIn.Name = customer.Name;
+            customerIn.Address = customer.Address;
+            _dbContext.Customers.Update(customerIn);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task RemoveAsync(int customerId)
+        {
+            var customer = await GetCustomerAsync(customerId);
             _dbContext.Customers.Remove(customer);
             await _dbContext.SaveChangesAsync();
         }

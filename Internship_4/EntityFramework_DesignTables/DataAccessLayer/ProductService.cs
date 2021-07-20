@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace EntityFramework_DesignTables.DataAccessLayer
 {
-    public class ProductService
+    public class ProductService : IProductService
     {
         private readonly ApplicationDbContext _dbContext;
         public ProductService(ApplicationDbContext dbContext)
@@ -25,16 +25,7 @@ namespace EntityFramework_DesignTables.DataAccessLayer
             return products;
         }
 
-        public List<Product> GetProducts()
-        {
-            var query = from product in _dbContext.Products
-                        select product;
-            var products = query.ToList();
-            return products;
-        }
-
-
-        public async Task<Product> GetProduct(int id)
+        public async Task<Product> GetProductAsync(int id)
         {
             var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.ProductId == id);
             if (product == null)
@@ -60,32 +51,15 @@ namespace EntityFramework_DesignTables.DataAccessLayer
             return soldedProducts;
         }
 
-        //public async Task CreateProductAsync(int productListId)
-        //{
-        //    var product = new Product
-        //    {
-        //        ProductListId = productListId,
-        //        ProductName = "Chocolate",
-        //        DateSold = new DateTime(2021, 03, 7),
-        //        Description = "Very yummy!"
-        //    };
-        //    await _dbContext.Products.AddAsync(product);
-        //    await _dbContext.SaveChangesAsync();
-        //}
-
-        public async Task CreateProductAsync(Product product)
+        public async Task CreateAsync(Product product)
         {
             await _dbContext.Products.AddAsync(product);
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task UpdateProductAsync(Product product)
+        public async Task UpdateAsync(Product product)
         {
-            var productIn = await _dbContext.Products.FirstOrDefaultAsync(p => p.ProductId == product.ProductId);
-            if (productIn == null)
-            {
-                throw new NotFoundException("The product is not found ... ");
-            }
+            var productIn = await GetProductAsync(product.ProductId);
             productIn.ProductListId = product.ProductListId;
             productIn.ProductName = product.ProductName;
             productIn.DateSold = product.DateSold;
@@ -94,25 +68,17 @@ namespace EntityFramework_DesignTables.DataAccessLayer
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task UpdateProductDescriptionAsync(int productId, string description)
+        public async Task UpdateDescriptionAsync(int productId, string description)
         {
-            var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.ProductId == productId);
-            if (product == null)
-            {
-                throw new NotFoundException("The product is not found ... ");
-            }
+            var product = await GetProductAsync(productId);
             product.Description = description;
             _dbContext.Products.Update(product);
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task RemoveProductAsync(int productId)
+        public async Task RemoveAsync(int productId)
         {
-            var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.ProductId == productId);
-            if (product == null)
-            {
-                throw new NotFoundException("The product is not found ... ");
-            }
+            var product = await GetProductAsync(productId);
             _dbContext.Products.Remove(product);
             await _dbContext.SaveChangesAsync();
         }

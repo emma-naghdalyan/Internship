@@ -9,28 +9,25 @@ using System.Threading.Tasks;
 
 namespace EntityFramework_DesignTables.Controllers
 {
-    // Can not add product, but other actions work. There is an error with OrderId, I think if the reason is
-    // when I added migration there were not OrderId in the Product model
-
     [Route("api/[controller]")]
     [ApiController]
     public class ProductController : ControllerBase
     {
         private readonly ApplicationDbContext _dbContext;
-        private readonly ProductService _productService;
+        private readonly IProductService _productService;
 
-        public ProductController(ApplicationDbContext dbContext)
+        public ProductController(ApplicationDbContext dbContext, IProductService service)
         {
             _dbContext = dbContext;
-            _productService = new ProductService(dbContext);
+            _productService = service;
         }
 
         [HttpGet]
-        public IActionResult GetProducts()
+        public async Task<IActionResult> GetProducts()
         {
             try
             {
-                var products = _productService.GetProducts();
+                var products = await _productService.GetProductsAsync();
                 return Ok(products);
             }
             catch (Exception ex)
@@ -44,7 +41,7 @@ namespace EntityFramework_DesignTables.Controllers
         {
             try
             {
-                var product = await _productService.GetProduct(id);
+                var product = await _productService.GetProductAsync(id);
                 return Ok(product);
             }
             catch (Exception ex)
@@ -60,7 +57,7 @@ namespace EntityFramework_DesignTables.Controllers
             {
                 return BadRequest();
             }
-            await _productService.CreateProductAsync(product);
+            await _productService.CreateAsync(product);
             return StatusCode(StatusCodes.Status201Created);
         }
 
@@ -69,7 +66,7 @@ namespace EntityFramework_DesignTables.Controllers
         {
             try
             {
-                await _productService.UpdateProductAsync(product);
+                await _productService.UpdateAsync(product);
                 return StatusCode(StatusCodes.Status201Created);
             }
             catch (Exception ex)
@@ -83,7 +80,7 @@ namespace EntityFramework_DesignTables.Controllers
         {
             try
             {
-                await _productService.RemoveProductAsync(id);
+                await _productService.RemoveAsync(id);
                 return StatusCode(StatusCodes.Status204NoContent);
             }
             catch (Exception ex)
