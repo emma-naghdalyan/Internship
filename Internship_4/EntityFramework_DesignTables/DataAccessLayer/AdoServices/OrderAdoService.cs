@@ -7,14 +7,14 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace EntityFramework_DesignTables.DataAccessLayer
+namespace EntityFramework_DesignTables.DataAccessLayer.AdoServices
 {
-    public class InventoryAdoService
+    public class OrderAdoService
     {
         IConfigurationRoot configuration;
         string connectionString;
 
-        public InventoryAdoService()
+        public OrderAdoService()
         {
             configuration = new ConfigurationBuilder()
                                 .SetBasePath(Directory.GetCurrentDirectory())
@@ -23,31 +23,31 @@ namespace EntityFramework_DesignTables.DataAccessLayer
             connectionString = configuration.GetConnectionString("DefaultConnection");
         }
 
-        public async Task<List<Inventory>> GetInventoriesAsync()
+        public async Task<List<Order>> GetOrdersAsync()
         {
-            string command = $"SELECT * FROM Inventories;";
-            List<Inventory> inventories = new List<Inventory>();
+            string command = $"SELECT * FROM Orders;";
+            List<Order> orders = new List<Order>();
             using (SqlConnection sqlConnection = new SqlConnection(connectionString))
             {
                 SqlCommand sqlCommand = new SqlCommand(command, sqlConnection);
                 sqlConnection.Open();
                 var reader = await sqlCommand.ExecuteReaderAsync();
-                while(reader.Read())
+                while (reader.Read())
                 {
-                    inventories.Add(new Inventory
+                    orders.Add(new Order
                     {
-                        InventoryId = reader.GetInt32(0),
-                        Type = reader.GetString(1),
-                        SerialNumber = reader.GetString(2)
+                        OrderId = reader.GetInt32(0),
+                        CustomerId = reader.GetInt32(1),
+                        TrackingNumber = reader.GetInt32(2)
                     });
                 }
             }
-            return inventories;
+            return orders;
         }
 
-        public async Task CreateInventoryAsync(Inventory inventory)
+        public async Task CreateOrderAsync(Order order)
         {
-            string command = $"INSERT INTO Inventories(Type, SerialNumber) VALUES({inventory.Type},{inventory.SerialNumber});";
+            string command = $"INSERT INTO Orders(CustomerId, TrackingNumber) VALUES({order.CustomerId},{order.TrackingNumber});";
             using (SqlConnection sqlConnection = new SqlConnection(connectionString))
             {
                 SqlCommand sqlCommand = new SqlCommand(command, sqlConnection);
@@ -56,9 +56,9 @@ namespace EntityFramework_DesignTables.DataAccessLayer
             }
         }
 
-        public async Task UpdateInventoryAsync(Inventory inventory)
+        public async Task UpdateOrderAsync(Order order)
         {
-            string command = $"UPDATE Inventories SET Type={inventory.Type}, SerialNumber={inventory.SerialNumber} WHERE InventoryId={inventory.InventoryId};";
+            string command = $"UPDATE Orders SET CustomerId={order.CustomerId}, TrackingNumber={order.TrackingNumber} WHERE OrderId={order.OrderId};";
             using (SqlConnection sqlConnection = new SqlConnection(connectionString))
             {
                 SqlCommand sqlCommand = new SqlCommand(command, sqlConnection);
@@ -67,9 +67,9 @@ namespace EntityFramework_DesignTables.DataAccessLayer
             }
         }
 
-        public async Task DeleteInventoryAsync(int id)
+        public async Task DeleteOrderAsync(int id)
         {
-            string command = $"DELETE FROM Inventories WHERE InventoryId={id};";
+            string command = $"DELETE FROM Orders WHERE OrderId={id};";
             using (SqlConnection sqlConnection = new SqlConnection(connectionString))
             {
                 SqlCommand sqlCommand = new SqlCommand(command, sqlConnection);

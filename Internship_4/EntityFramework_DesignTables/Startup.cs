@@ -1,5 +1,7 @@
 using EntityFramework_DesignTables.DataAccessLayer;
+using EntityFramework_DesignTables.DataAccessLayer.Interfaces;
 using EntityFramework_DesignTables.Entities;
+using EntityFramework_DesignTables.Injections;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -28,16 +30,16 @@ namespace EntityFramework_DesignTables
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
+            services.AddDbContext<ApplicationDbContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddRepositoryInjections();
+            services.AddServiceInjections();
+            services.AddUnitOfWorkInjection();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "EntityFramework_DesignTables", Version = "v1" });
             });
 
-            services.AddDbContext<ApplicationDbContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-            services.AddTransient<IProductService, ProductService>();
-            services.AddScoped<ICustomerService, CustomerService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,4 +1,5 @@
-﻿using EntityFramework_DesignTables.DataAccessLayer;
+﻿using EntityFramework_DesignTables.BusinessLogicLayer.Interfaces;
+using EntityFramework_DesignTables.DataAccessLayer.Interfaces;
 using EntityFramework_DesignTables.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,12 +14,10 @@ namespace EntityFramework_DesignTables.Controllers
     [ApiController]
     public class ProductController : ControllerBase
     {
-        private readonly ApplicationDbContext _dbContext;
         private readonly IProductService _productService;
 
-        public ProductController(ApplicationDbContext dbContext, IProductService service)
+        public ProductController(IProductService service)
         {
-            _dbContext = dbContext;
             _productService = service;
         }
 
@@ -57,7 +56,7 @@ namespace EntityFramework_DesignTables.Controllers
             {
                 return BadRequest();
             }
-            await _productService.CreateAsync(product);
+            await _productService.CreateProductAsync(product);
             return StatusCode(StatusCodes.Status201Created);
         }
 
@@ -66,7 +65,7 @@ namespace EntityFramework_DesignTables.Controllers
         {
             try
             {
-                await _productService.UpdateAsync(product);
+                await _productService.UpdateProductAsync(product);
                 return StatusCode(StatusCodes.Status201Created);
             }
             catch (Exception ex)
@@ -80,7 +79,7 @@ namespace EntityFramework_DesignTables.Controllers
         {
             try
             {
-                await _productService.RemoveAsync(id);
+                await _productService.RemoveProductAsync(id);
                 return StatusCode(StatusCodes.Status204NoContent);
             }
             catch (Exception ex)

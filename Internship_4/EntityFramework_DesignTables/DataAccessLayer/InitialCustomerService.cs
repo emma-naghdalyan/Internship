@@ -1,4 +1,5 @@
-﻿using EntityFramework_DesignTables.Entities;
+﻿using EntityFramework_DesignTables.DataAccessLayer.Interfaces;
+using EntityFramework_DesignTables.Entities;
 using EntityFramework_DesignTables.Exceptions;
 using EntityFramework_DesignTables.Models;
 using Microsoft.EntityFrameworkCore;
@@ -9,10 +10,10 @@ using System.Threading.Tasks;
 
 namespace EntityFramework_DesignTables.DataAccessLayer
 {
-    public class CustomerService : ICustomerService
+    public class InitialCustomerService
     {
         private readonly ApplicationDbContext _dbContext;
-        public CustomerService(ApplicationDbContext dbContext)
+        public InitialCustomerService(ApplicationDbContext dbContext)
         {
             _dbContext = dbContext;
         }
